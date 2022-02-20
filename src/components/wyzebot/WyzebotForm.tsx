@@ -153,7 +153,7 @@ const WyzebotForm = (props: any) => {
             
             <Grid container spacing={2}>
               <Grid item xs={12} md={10}>
-                  <TextField fullWidth label="Value" margin="normal" name="value" type="text" 
+                  <TextField fullWidth label="Power" margin="normal" name="value" type="text" 
                   variant="outlined" inputRef={value => (powerRef.current = value) } />          
               </Grid>
               <Grid item xs={12} md={2} >
