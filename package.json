@@ -2,6 +2,7 @@
   "name": "wyzebts-ts",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://wyzebots.web.app/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^11.2.7",
@@ -11,6 +12,7 @@
     "@types/react": "^16.14.23",
     "@types/react-dom": "^16.9.14",
     "react": "^17.0.2",
+    "react-clear-cache": "^1.4.12",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
     "typescript": "^4.5.5",
@@ -26,13 +28,52 @@
     "workbox-range-requests": "^5.1.4",
     "workbox-routing": "^5.1.4",
     "workbox-strategies": "^5.1.4",
-    "workbox-streams": "^5.1.4"
+    "workbox-streams": "^5.1.4",
+    "@capacitor/cli": "^3.3.4",
+    "@capacitor/core": "^3.3.4",
+    "@capacitor/storage": "^1.2.3",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@material-ui/core": "^5.0.0-beta.5",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/styles": "^5.0.0-beta.5",
+    "@mui/icons-material": "^5.4.2",
+    "@mui/material": "^5.4.2",
+    "@mui/styles": "^5.4.2",
+    "@types/react-router-dom": "^5.3.3",
+    "chart.js": "^3.5.1",
+    "firebase": "^9.6.3",
+    "formik": "^2.1.5",
+    "history": "^5.0.0",
+    "moment": "^2.29.1",
+    "nprogress": "^0.2.0",
+    "prop-types": "^15.7.2",
+    "react-chartjs-2": "^3.0.4",
+    "react-feather": "^2.0.8",
+    "react-helmet": "^6.1.0",
+    "react-hook-form": "^6.15.3",
+    "react-perfect-scrollbar": "^1.5.8",
+    "react-router": "^6.2.1",
+    "react-router-dom": "^6.2.1",
+    "react-toastify": "^8.1.0",
+    "rxjs": "^7.5.2",
+    "uuid": "^8.3.0",
+    "yup": "^0.32.11"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run generate-build-meta && react-scripts build && firebase deploy",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "compile:scss": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css",
+    "minify:scss": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.min.css --output-style compressed",
+    "map:scss": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css --source-map true",
+    "build:scss": "npm run compile:scss && npm run minify:scss && npm run map:scss",
+    "predeploy": "npm run build",
+    "deploy": "firebase build",
+    "prebuild": "npm run generate-build-meta",
+    "generate-build-meta": "node ./node_modules/react-clear-cache/bin/cli.js"
   },
   "eslintConfig": {
     "extends": [
@@ -51,5 +92,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-helmet": "^6.1.5"
   }
 }
