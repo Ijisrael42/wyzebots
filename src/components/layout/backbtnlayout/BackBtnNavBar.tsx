@@ -24,7 +24,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const BackBtnNavBar: React.FC<any> = ( {...rest}:any )  => {
+const BackBtnNavBar: React.FC<any> = ( {bannerName,...rest}:any )  => {
 
   let navigate = useNavigate();
   
@@ -43,7 +43,7 @@ const BackBtnNavBar: React.FC<any> = ( {...rest}:any )  => {
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div">
-              <h2>Header</h2>
+              <h2>{ bannerName ? bannerName : "Header" }</h2>
             </Typography>
 
         </Toolbar>
@@ -61,7 +61,7 @@ const BackBtnNavBar: React.FC<any> = ( {...rest}:any )  => {
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div">
-              <h2>Header</h2>
+              <h2>{ bannerName ? bannerName : "Header" }</h2>
             </Typography>
 
         </Toolbar>

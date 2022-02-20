@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { DrawerContextProvider } from "../contexts/drawer-context";
 import { styled } from '@material-ui/core/styles';
 import DashboardNavBar from "./DashboardNavBar";
@@ -39,10 +39,15 @@ const DashboardLayoutRoot = styled('div')(
   });
   
 const MainLayout: React.FC<any> = () => {
+
+  const location = useLocation();
+  const str = location.pathname.split("/")[1];
+  const name = str[0].toUpperCase() + str.slice(1);
+
     return (
         <DrawerContextProvider>
             <DashboardLayoutRoot>
-                <DashboardNavBar />
+                <DashboardNavBar bannerName={name}  />
                 <Drawer />
                 <DashboardLayoutWrapper>
                     <DashboardLayoutContainer>

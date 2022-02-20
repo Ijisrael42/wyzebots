@@ -27,7 +27,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const DashboardNavBar: React.FC<any> = ( {...rest}:any )  => {
+const DashboardNavBar: React.FC<any> = ( { bannerName,...rest}:any )  => {
 
   const { isOpened, toggleIsOpened } = useDrawerContext();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -46,22 +46,8 @@ const DashboardNavBar: React.FC<any> = ( {...rest}:any )  => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          <h2>Header</h2>
-        </Typography>
-
-        <div>
-          <IconButton size="large" aria-label="account of current user" aria-controls="menu-appbar"
-            aria-haspopup="true" onClick={handleMenu} color="inherit" >
-            <AccountCircle />
-          </IconButton>
-          <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: 'top', horizontal: 'right', }}
-            keepMounted transformOrigin={{ vertical: 'top', horizontal: 'right', }}
-            open={Boolean(anchorEl)} onClose={handleClose} >
-            <MenuItem component={RouterLink} to="/app/profile" >Profile</MenuItem>
-            <MenuItem onClick={() => logout()}>Log Out</MenuItem>
-          </Menu>
-        </div>
-          
+          <h2>{ bannerName ? bannerName : "Header" }</h2>
+        </Typography>          
       </Toolbar>
     </Hidden>
     
@@ -72,23 +58,12 @@ const DashboardNavBar: React.FC<any> = ( {...rest}:any )  => {
           {isOpened ? <ChevronLeftIcon /> : <MenuIcon />}
         </IconButton>
         <Typography variant="h6" noWrap component="div">
-          <h2>Header</h2>
+          <h2>{ bannerName ? bannerName : "Header" }</h2>
         </Typography>
 
       </Toolbar>
     </Hidden>
   </AppBar>
-  /* 
-    <AppBar className={classes.appBar}>
-      <Toolbar>
-      <IconButton color="inherit" onClick={() => toggleIsOpened(!isOpened)}  className={classes.icon} >
-          {isOpened ? <ChevronLeftIcon /> : <MenuIcon />}
-        </IconButton>
-        <Typography variant="h6" className={classes.title}>
-          Header
-        </Typography>
-      </Toolbar>
-    </AppBar> */
   );
 };
 

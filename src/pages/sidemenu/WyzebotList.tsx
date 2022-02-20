@@ -5,12 +5,15 @@ import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
 import { useNavigate  } from "react-router-dom";
 import { Backdrop, CircularProgress } from '@mui/material';
+import { wyzebotService } from '../../services/wyzebotService'; 
+
 interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
 
 const WyzebotList: React.FC<any> = () => {
 
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = React.useState([]);
+    const [ wyzebots, setWyzebots ] = useState([]);
 
     const handleClose = () => { setOpen(false); };
     function createData( name: string, calories: number, fat: number, carbs: number, protein: number ) {
@@ -39,12 +42,20 @@ const WyzebotList: React.FC<any> = () => {
         { id: 'protein', numeric: true, disablePadding: false, label: 'Protein (g)', },
     ];
   
+    useEffect( () => { 
+
+        wyzebotService.getAll()
+        .then( (response:any) => { setWyzebots(response) })
+        .catch( (error:any) => {});
+
+      },[]);
+
     return (
         <>
             <Helmet> <title>Wyzebot Table | WYZETALK</title> </Helmet>
             <Box sx={{ backgroundColor: 'background.default', minHeight: '100%', py: 3 }} >
                 <Container maxWidth={false}>
-                    <WyzebotToolbar module="wyzebot" />
+                    <WyzebotToolbar module="wyzebots" />
                     <Box sx={{ pt: 3 }}>
                         <EnhancedTable selected={selected} setSelected={setSelected} rows={rows} 
                         deleteSelected={deleteSelected} headCells={headCells}   />
