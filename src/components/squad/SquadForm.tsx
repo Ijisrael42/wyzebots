@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
-import { wyzebotService } from '../../services/wyzebotService'; 
+import { squadService } from '../../services/squadService'; 
 import { useParams, useNavigate, useLocation } from 'react-router';
-import { Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
+import { Stepper, Step, StepLabel, Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { fileService } from "../../services/fileService";
@@ -11,18 +11,58 @@ interface ChipData { key: number; label: string; }
 const ListItem = styled('li')((props: any) => ({ margin: props.theme.spacing(0.5), }));
 const Input = styled('input')({ display: 'none', });
 
-const WyzebotForm = (props: any) => {
+const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+
+const SquadForm = (props: any) => {
+
+
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [skipped, setSkipped] = React.useState(new Set<number>());
+
+  const isStepOptional = (step: number) => { return step === 1; };
+  const isStepSkipped = (step: number) => { return skipped.has(step); };
+
+  const handleNext = () => {
+    let newSkipped = skipped;
+    if (isStepSkipped(activeStep)) {
+      newSkipped = new Set(newSkipped.values());
+      newSkipped.delete(activeStep);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1); setSkipped(newSkipped);
+  };
+
+  const handleBack = () => { setActiveStep((prevActiveStep) => prevActiveStep - 1); };
+
+  const handleSkip = () => {
+    if (!isStepOptional(activeStep)) {
+      // You probably want to guard against something like this,
+      // it should never occur unless someone's actively trying to break something.
+      throw new Error("You can't skip a step that isn't optional.");
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setSkipped((prevSkipped) => {
+      const newSkipped = new Set(prevSkipped.values()); newSkipped.add(activeStep);
+      return newSkipped;
+    });
+  };
+
+  const handleReset = () => { setActiveStep(0); };
+
+
+
   const navigate = useNavigate();
   const { id }:any = useParams();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
-  const [wyzebot, setWyzebot] = useState<any>(null);
+  const [squad, setSquad] = useState<any>(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const options = [ "Enabled", "Disabled" ];
   const location = useLocation();
   const route = location.pathname.split("/")[1];
   const moduleName = route[0].toUpperCase() + route.slice(1, route.length - 1);
-
+  
   const powerRef = useRef<any>(null);
   const nameRef = useRef<any>(null);
   const fileRef = useRef<any>(null);
@@ -97,12 +137,12 @@ const WyzebotForm = (props: any) => {
     let data = { name: name, power: power, image: file.name, file_id: fileID };
 
     if( id === "create" ){
-      wyzebotService.create(data)
+      squadService.create(data)
       .then((response:any) => { handleClose(); setAlertBody("success"); })
       .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
     } 
     else {
-      wyzebotService.update(id, data)
+      squadService.update(id, data)
       .then( response => { handleClose(); setAlertBody("success"); })
       .catch( error => { handleClose(); setAlertBody("error"); console.log(error);} );
     }
@@ -155,9 +195,9 @@ const WyzebotForm = (props: any) => {
 
       handleToggle();
 
-      wyzebotService.getById(id)
+      squadService.getById(id)
       .then( response => { 
-        setWyzebot(response);  setOpen(false); 
+        setSquad(response);  setOpen(false); 
         setFile({ name: response.image });
         setFileID(response.file_id);
         nameRef.current.value = response.name;
@@ -175,74 +215,68 @@ const WyzebotForm = (props: any) => {
     <>
       <form {...props} >           
         <Card>
-        <CardHeader subheader={ id === "create" ? `Create ${moduleName}` : `Update ${moduleName}` } title={moduleName} />
+          <CardHeader subheader={ id === "create" ? `Create ${moduleName}` : `Update ${moduleName}` } title={moduleName} />
           <Divider />
           <CardContent>
             
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={9}>
-                <TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name" helperText={error ? error : ""}
-                 error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
-                  />          
-             </Grid> 
-
-             <Grid item xs={12} md={3}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start' }} > 
-                  <Stack spacing={0}>
-                    <Typography sx={{ width: "240px" }} noWrap variant="caption" gutterBottom component="div">File type: png, jpg, jpeg</Typography>                      
-                    <div>         
-                      <Input ref={fileRef} onChange={(e:any) => fileUpload(e)} accept="image/*" id="contained-button-file" type="file" />
-                      <Button onClick={() => uploadBtn()} disabled={isDisabled ? true: false} variant="contained" component="span"> Upload </Button>
-                    </div>
-                    {file && (
-                      <Typography sx={{ width: "240px" }} noWrap variant="caption" gutterBottom component="div">{file.name}</Typography>                      
-                    )}
-                    {fileError && (
-                      <Typography sx={{ width: "240px", color: "red" }} variant="caption" display="block" gutterBottom component="div">{fileError}</Typography>                      
-                    )}
-                  </Stack>  
-                </Box>
-             </Grid>  
-            </Grid>  
-            
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={9}>
-                  <TextField onClick={() => setPowerError("")}fullWidth label="Power" margin="normal" name="value" type="text" helperText={powerError ? powerError : ""}
-                  error={powerError ? true : false} variant="outlined" inputRef={value => (powerRef.current = value) } />          
-              </Grid>
-              <Grid item xs={12} md={3} >
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 3 }} >            
-                  { (chipData.length >= 3) ? 
-                      (<Button component="span" disabled={true} color="primary" variant="contained" > Maxed Out </Button>) 
-                    : (<Button component="span" onClick={() => handleAdd()} color="primary" variant="contained" > Add </Button>)
-                  }
-                </Box>
-              </Grid>   
-              
-              <Grid item xs={12} >
-                <Paper sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', listStyle: 'none', p: 0.5, m: 0, }} component="ul" >
-                  { chipData.length > 0 ? ( chipData.map((data, key) => {
-                    let icon;
-                    if (data.label === 'React') icon = <TagFacesIcon />;
-
-                    return (
-                      <ListItem key={key}>
-                        <Chip icon={icon} label={data.label} 
-                        onDelete={data.label === 'React' ? undefined : handleDelete(data)} />
-                      </ListItem>
+          <Box sx={{ width: '100%' }}>
+              <Stepper activeStep={activeStep}>
+                {steps.map((label, index) => {
+                  const stepProps: { completed?: boolean } = {};
+                  const labelProps: {
+                    optional?: React.ReactNode;
+                  } = {};
+                  if (isStepOptional(index)) {
+                    labelProps.optional = (
+                      <Typography variant="caption">Optional</Typography>
                     );
-                  })) 
-                : (<Alert severity="error">Type Power and Click Add. Min - 1, Max - 3 powers</Alert> )}
-                </Paper>
-              </Grid>              
-            </Grid>
+                  }
+                  if (isStepSkipped(index)) {
+                    stepProps.completed = false;
+                  }
+                  return (
+                    <Step key={label} {...stepProps}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
+              </Stepper>
+              {activeStep === steps.length ? (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                    <Box sx={{ flex: '1 1 auto' }} />
+                    <Button onClick={handleReset}>Reset</Button>
+                  </Box>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                    <Button
+                      color="inherit"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Back
+                    </Button>
+                    <Box sx={{ flex: '1 1 auto' }} />
+                    {isStepOptional(activeStep) && (
+                      <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+                        Skip
+                      </Button>
+                    )}
+                    <Button onClick={handleNext}>
+                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                    </Button>
+                  </Box>
+                </React.Fragment>
+              )}
+            </Box>
           </CardContent>
-          <Divider />
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }} >            
-            <Button onClick={() => create()} disabled={isDisabled ? true: false} color="primary" variant="contained" >
-               { id === "create" ? "Create" : "Update" }
-            </Button>
-          </Box>
         </Card>
       </form>
 
@@ -257,4 +291,4 @@ const WyzebotForm = (props: any) => {
   );
 };
 
-export default WyzebotForm;
+export default SquadForm;

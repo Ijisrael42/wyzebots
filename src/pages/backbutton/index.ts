@@ -1,3 +1,4 @@
 import Wyzebot from "./Wyzebot";
+import Squad from "./Squad";
 
-export { Wyzebot };
+export { Wyzebot, Squad };
