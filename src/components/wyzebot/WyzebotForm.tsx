@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
 import { wyzebotService } from '../../services/wyzebotService'; 
 import { useParams, useNavigate, useLocation } from 'react-router';
@@ -16,6 +16,7 @@ const WyzebotForm = (props: any) => {
   const { id }:any = useParams();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
+  const [wyzebot, setWyzebot] = useState<any>(null);
   const [isDisabled, setIsDisabled] = useState(false);
   const options = [ "Enabled", "Disabled" ];
   const location = useLocation();
@@ -36,7 +37,16 @@ const WyzebotForm = (props: any) => {
   const handleClose = () => { setOpen(false); };
   const handleToggle = () => { setOpen(!open); };
   const [chipData, setChipData] = React.useState< ChipData[]>([]);
-  const uploadBtn = () => { fileRef.current.click(); setFile(null); setFileError(""); }
+  const uploadBtn = async () => { 
+
+    try{ 
+      if(fileID && fileID !== "") {
+        let response =  await fileService.deleteFile(fileID); console.log(response); 
+      } 
+    } catch (error) {  console.log(error);  }
+
+    fileRef.current.click(); setFile(null); setFileError(""); 
+  }
   const handleClick = () => { setOpenSnackBar(true); };
   const handleDelete = (chipToDelete: ChipData) => () => {
     setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
@@ -47,10 +57,11 @@ const WyzebotForm = (props: any) => {
   const delay = 5000;
   const setAlertBody = ( state: AlertColor ) => { 
     const stateMessage = state === "success" ? "Success" : "Error";
+    const action = (id === "create") ? "Created" : "Updated";
     setState(state);
     const message = state === "success" ? 
-    (<>You have successfully — <strong>Created a {moduleName}!</strong></>) : 
-    (<>{moduleName} creation was - <strong>Unsuccessful</strong>. Please check your Network Connection.</>);
+    (<>You have successfully — <strong>{action} a {moduleName}!</strong></>) : 
+    (<>You have Unsuccessfully — <strong>{action} a {moduleName}</strong>. Please check your Network Connection.</>);
 
     const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
     setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(`/${route}`), delay);
@@ -85,26 +96,18 @@ const WyzebotForm = (props: any) => {
     setIsDisabled(true);
     let data = { name: name, power: power, image: file.name, file_id: fileID };
 
-    wyzebotService.create(data)
-    .then((response:any) => { handleClose(); setAlertBody("success"); })
-    .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
-
-  }
-
-  const update = (data:any) => {
-    handleToggle();
-    if( id === "create" ) {
-      data.status = options[1];
+    if( id === "create" ){
       wyzebotService.create(data)
-      .then( response => { navigate(`/app/${route}s`); })
-      .catch( error => console.log(error) );
-    }
+      .then((response:any) => { handleClose(); setAlertBody("success"); })
+      .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
+    } 
     else {
       wyzebotService.update(id, data)
-      .then( response => {   navigate(0); })
-      .catch( error => console.log(error) );
+      .then( response => { handleClose(); setAlertBody("success"); })
+      .catch( error => { handleClose(); setAlertBody("error"); console.log(error);} );
     }
-  };
+
+  }
 
   const getFile = (e:any) => {
     let file = e.target.files[0];
@@ -116,19 +119,16 @@ const WyzebotForm = (props: any) => {
   };
 
   const fileServiceUpload = async (file:any) => {
-    // setShowLoading(true);
+
     let formData = new FormData();
     formData.append("file", file);
 
     try{
       let response = await fileService.upload(formData);
-      // setShowLoading(false);
+      console.log(response);
       setFileID(response.file_id);
       return response;
-    } catch (error) { 
-      //setShowLoading(false); 
-      return error; 
-    }
+    } catch (error) {  return error;  }
   };
 
   const fileUpload = (e:any) => {
@@ -139,13 +139,37 @@ const WyzebotForm = (props: any) => {
     if( !file ) { setFileError(`Incompatible. Please use ${filetype.toString()}`); return; }
 
     const fileSize = Math.round((file.size / (1024 * 1024) )); // in Kb => 1024 bytes, Mb => 1024 * 1024 bytes
+    
     if( fileSize > 10 ) { 
       let docFile = document.getElementById(id) as HTMLFormElement;
       docFile.value = "";
       setFileError("File is too large."); return;
     }
+
     setFile(file); fileServiceUpload(file);
   };
+
+  useEffect( () => {
+
+    if( id !== "create" ) {
+
+      handleToggle();
+
+      wyzebotService.getById(id)
+      .then( response => { 
+        setWyzebot(response);  setOpen(false); 
+        setFile({ name: response.image });
+        setFileID(response.file_id);
+        nameRef.current.value = response.name;
+        
+        let temp: ChipData[] = [];
+        response.power.forEach((el:string, index: number) => temp.push({label: el, key: index}));
+
+        setChipData([...temp]);
+      })    
+      .catch( error => console.log(error) );
+    }
+  },[]);
 
   return (
     <>
@@ -158,7 +182,8 @@ const WyzebotForm = (props: any) => {
             <Grid container spacing={2}>
               <Grid item xs={12} md={9}>
                 <TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name" helperText={error ? error : ""}
-                 error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } />          
+                 error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
+                  />          
              </Grid> 
 
              <Grid item xs={12} md={3}>

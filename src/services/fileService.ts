@@ -8,6 +8,7 @@ const baseUrl = `${config.apiUrl}/files`;
 export const fileService = {
     upload,
     uploadMultiple,
+    deleteFile,
 }; 
 
 
@@ -18,4 +19,8 @@ function upload(params: any) {
 
 function uploadMultiple(params: any) {
     return fetchWrapper.file(`${baseUrl}/upload_multiple`, params);
+}
+
+function deleteFile(id: string) {
+    return fetchWrapper.get(`${baseUrl}/delete/${id}`);
 }
