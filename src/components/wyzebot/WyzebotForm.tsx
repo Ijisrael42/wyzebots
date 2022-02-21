@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
 import { wyzebotService } from '../../services/wyzebotService'; 
-import { useForm, Controller } from "react-hook-form";
-import useResolver from '../../helpers/resolver';
 import { useParams, useNavigate, useLocation } from 'react-router';
-import * as Yup from 'yup';
-import { Backdrop, CircularProgress, Grid, Paper, Chip, Alert } from '@mui/material';
+import { Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { fileService } from "../../services/fileService";
@@ -15,7 +12,6 @@ const ListItem = styled('li')((props: any) => ({ margin: props.theme.spacing(0.5
 const Input = styled('input')({ display: 'none', });
 
 const WyzebotForm = (props: any) => {
-  const [wyzebot, setWyzebot] = useState();
   const navigate = useNavigate();
   const { id }:any = useParams();
   const [error, setError] = useState("");
@@ -25,17 +21,35 @@ const WyzebotForm = (props: any) => {
   const route = location.pathname.split("/")[2];
   const powerRef = useRef<any>(null);
   const nameRef = useRef<any>(null);
+  const fileRef = useRef<any>(null);
   const [file, setFile] = useState<any>(null);
-  const [fileExt, setFileExt] = useState<any>(null);
   const [fileError, setFileError] = useState<any>(null);
+  const [powerError, setPowerError] = useState<any>(null);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [alert, setAlert] = useState<any>();
+  const [state, setState] = useState<AlertColor | undefined>("success");
 
   const handleClose = () => { setOpen(false); };
   const handleToggle = () => { setOpen(!open); };
   const [chipData, setChipData] = React.useState< ChipData[]>([]);
-
+  const uploadBtn = () => { fileRef.current.click(); setFile(null); setFileError(""); }
+  const handleClick = () => { setOpenSnackBar(true); };
   const handleDelete = (chipToDelete: ChipData) => () => {
     setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
   };
+
+  const handleCloseSnackbar = () => { setOpenSnackBar(false); };
+
+  const delay = 5000;
+  const setAlertBody = ( state: string) => { 
+    const stateMessage = state === "success" ? "Success" : "Error";
+    const message = state === "success" ? 
+    (<>You have successfully — <strong>Created a Wyzebot!</strong></>) : 
+    (<>Wyzebot creation was - <strong>Unsuccessful</strong>. Please check your Network Connection.</>);
+
+    const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
+    setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+  }
 
   const handleAdd = () => {
 
@@ -43,33 +57,30 @@ const WyzebotForm = (props: any) => {
       let power: ChipData = { key: chipData.length, label: powerRef.current!.value };
       powerRef.current!.value = "";
       setChipData([...chipData, power ]);
-    }
+    } else setPowerError("Please type power here");
   };
 
   const create = () => {
-    let name = "", power = [];
+    
+    var name = "", power: any[] = [], isValid = true;
+
     if(nameRef.current.value === "" || nameRef.current.value === undefined) {
-      // set error
-      return;
+      setError("Name is a required field"); 
+      isValid = false;
     } else name = nameRef.current.value;
 
-    if( chipData.length < 1 ) {
-      // set error
-      return;
-    } else if( chipData.length > 3 ) {
-      // set error
-      return;
-    } else power = chipData.map( ( chip: ChipData) => chip.label);
+    if( chipData.length < 1 ) isValid = false;
+    else power = chipData.map( ( chip: ChipData) => chip.label);
 
-    if(!file) { 
-      // set error
-      return;
-    }
+    if(!file) { setFileError("Please choose a file"); isValid = false; }  
     
+    if(!isValid) return;
+    
+    handleToggle();
     let data = { name: name, power: power, image: file.name };
     wyzebotService.create(data)
-    .then((response:any) => { console.log(response);})
-    .catch((error:any) => { console.log(error);})
+    .then((response:any) => { handleClose(); setAlertBody("success"); console.log(response);})
+    .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
 
   }
 
@@ -113,9 +124,11 @@ const WyzebotForm = (props: any) => {
   };
 
   const fileUpload = (e:any) => {
+    const filetype = ['png', 'jpg', 'jpeg']; // 'doc', 'docx', 'pdf',
+
     if( !e.target.files[0] ) return;
     const file = getFile(e);
-    if( !file ) { setFileError("Incompatible file type"); return; }
+    if( !file ) { setFileError(`Incompatible. Please use ${filetype.toString()}`); return; }
 
     const fileSize = Math.round((file.size / (1024 * 1024) )); // in Kb => 1024 bytes, Mb => 1024 * 1024 bytes
     if( fileSize > 10 ) { 
@@ -123,9 +136,9 @@ const WyzebotForm = (props: any) => {
       docFile.value = "";
       setFileError("File is too large."); return;
     }
-    setFileExt(file);
     setFile(file); fileServiceUpload(file);
   };
+
 
   return (
     <>
@@ -133,30 +146,38 @@ const WyzebotForm = (props: any) => {
         <Card>
           <CardHeader subheader={ id === "create" ? "Create field" : "Update field" } title="Wyzebot" />
           <Divider />
-          <CardContent>'
+          <CardContent>
             
             <Grid container spacing={2}>
-              <Grid item xs={12} md={10}>
-                <TextField fullWidth label="Name" margin="normal" name="name" 
-                 type="text" variant="outlined" inputRef={value => (nameRef.current = value) } />          
+              <Grid item xs={12} md={9}>
+                <TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name" helperText={error ? error : ""}
+                 error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } />          
              </Grid> 
 
-             <Grid item xs={12} md={2}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 3 }} >   
-                  <label htmlFor="contained-button-file">         
-                    <Input onChange={(e:any) => fileUpload(e)} accept="image/*" id="contained-button-file" type="file" />
-                    <Button variant="contained" component="span"> Upload </Button>
-                  </label>
+             <Grid item xs={12} md={3}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 2 }} > 
+                  <Stack spacing={1}>
+                    <div>         
+                      <Input ref={fileRef} onChange={(e:any) => fileUpload(e)} accept="image/*" id="contained-button-file" type="file" />
+                      <Button onClick={() => uploadBtn()} variant="contained" component="span"> Upload </Button>
+                    </div>
+                    {file && (
+                      <Typography sx={{ width: "240px" }} noWrap variant="caption" gutterBottom component="div">{file.name}</Typography>                      
+                    )}
+                    {fileError && (
+                      <Typography sx={{ width: "240px", color: "red" }} variant="caption" display="block" gutterBottom component="div">{fileError}</Typography>                      
+                    )}
+                  </Stack>  
                 </Box>
              </Grid>  
             </Grid>  
             
             <Grid container spacing={2}>
-              <Grid item xs={12} md={10}>
-                  <TextField fullWidth label="Power" margin="normal" name="value" type="text" 
-                  variant="outlined" inputRef={value => (powerRef.current = value) } />          
+              <Grid item xs={12} md={9}>
+                  <TextField onClick={() => setPowerError("")}fullWidth label="Power" margin="normal" name="value" type="text" helperText={powerError ? powerError : ""}
+                  error={powerError ? true : false} variant="outlined" inputRef={value => (powerRef.current = value) } />          
               </Grid>
-              <Grid item xs={12} md={2} >
+              <Grid item xs={12} md={3} >
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 3 }} >            
                   { (chipData.length >= 3) ? 
                       (<Button component="span" disabled={true} color="primary" variant="contained" > Maxed Out </Button>) 
@@ -196,6 +217,9 @@ const WyzebotForm = (props: any) => {
         <CircularProgress color="inherit" />
       </Backdrop>    
 
+      <Snackbar open={openSnackBar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} autoHideDuration={delay} onClose={handleCloseSnackbar}>
+        <Alert variant="filled" onClose={() => handleCloseSnackbar()} severity={state} sx={{ width: '100%' }}> {alert} </Alert>
+      </Snackbar>
     </>
   );
 };
