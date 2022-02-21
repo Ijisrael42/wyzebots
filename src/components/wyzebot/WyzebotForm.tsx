@@ -16,9 +16,12 @@ const WyzebotForm = (props: any) => {
   const { id }:any = useParams();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const options = [ "Enabled", "Disabled" ];
   const location = useLocation();
-  const route = location.pathname.split("/")[2];
+  const route = location.pathname.split("/")[1];
+  const moduleName = route[0].toUpperCase() + route.slice(1, route.length - 1);
+
   const powerRef = useRef<any>(null);
   const nameRef = useRef<any>(null);
   const fileRef = useRef<any>(null);
@@ -44,11 +47,11 @@ const WyzebotForm = (props: any) => {
   const setAlertBody = ( state: string) => { 
     const stateMessage = state === "success" ? "Success" : "Error";
     const message = state === "success" ? 
-    (<>You have successfully — <strong>Created a Wyzebot!</strong></>) : 
-    (<>Wyzebot creation was - <strong>Unsuccessful</strong>. Please check your Network Connection.</>);
+    (<>You have successfully — <strong>Created a {moduleName}!</strong></>) : 
+    (<>{moduleName} creation was - <strong>Unsuccessful</strong>. Please check your Network Connection.</>);
 
     const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
-    setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+    setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(`/${route}`), delay);
   }
 
   const handleAdd = () => {
@@ -77,6 +80,7 @@ const WyzebotForm = (props: any) => {
     if(!isValid) return;
     
     handleToggle();
+    setIsDisabled(true);
     let data = { name: name, power: power, image: file.name };
     wyzebotService.create(data)
     .then((response:any) => { handleClose(); setAlertBody("success"); console.log(response);})
@@ -155,11 +159,12 @@ const WyzebotForm = (props: any) => {
              </Grid> 
 
              <Grid item xs={12} md={3}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 2 }} > 
-                  <Stack spacing={1}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start' }} > 
+                  <Stack spacing={0}>
+                    <Typography sx={{ width: "240px" }} noWrap variant="caption" gutterBottom component="div">File type: png, jpg, jpeg</Typography>                      
                     <div>         
                       <Input ref={fileRef} onChange={(e:any) => fileUpload(e)} accept="image/*" id="contained-button-file" type="file" />
-                      <Button onClick={() => uploadBtn()} variant="contained" component="span"> Upload </Button>
+                      <Button onClick={() => uploadBtn()} disabled={isDisabled ? true: false} variant="contained" component="span"> Upload </Button>
                     </div>
                     {file && (
                       <Typography sx={{ width: "240px" }} noWrap variant="caption" gutterBottom component="div">{file.name}</Typography>                      
@@ -206,7 +211,7 @@ const WyzebotForm = (props: any) => {
           </CardContent>
           <Divider />
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }} >            
-            <Button onClick={() => create()} color="primary" variant="contained" >
+            <Button onClick={() => create()} disabled={isDisabled ? true: false} color="primary" variant="contained" >
                { id === "create" ? "Create" : "Update" }
             </Button>
           </Box>
