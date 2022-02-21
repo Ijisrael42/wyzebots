@@ -1,39 +1,14 @@
 import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel,
-    Toolbar, Typography, Paper, Checkbox, IconButton, FormControlLabel, Switch, } from '@mui/material';
+    Toolbar, Typography, Paper, Checkbox, IconButton, FormControlLabel, Switch,  Dialog, DialogActions,
+    DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
     import Tooltip from '@mui/material/Tooltip';
     import { Delete as DeleteIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 //   import { visuallyHidden } from '@mui/utils';
   import { useNavigate } from "react-router-dom";
   
 interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
-
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number,
-): Data {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
-
-const rows = [
-  createData('Cupcake', 305, 3.7, 67, 4.3), createData('Donut', 452, 25.0, 51, 4.9),
-  createData('Eclair', 262, 16.0, 24, 6.0), createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Gingerbread', 356, 16.0, 49, 3.9), createData('Honeycomb', 408, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3), createData('Jelly Bean', 375, 0.0, 94, 0.0),
-  createData('KitKat', 518, 26.0, 65, 7.0),  createData('Lollipop', 392, 0.2, 98, 0.0),
-  createData('Marshmallow', 318, 0, 81, 2.0), createData('Nougat', 360, 19.0, 9, 37.0),
-  createData('Oreo', 437, 18.0, 63, 4.0),
-];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -80,52 +55,21 @@ interface HeadCell {
   numeric: boolean;
 }
 
-const headCells: readonly HeadCell[] = [
-  {
-    id: 'name',
-    numeric: false,
-    disablePadding: true,
-    label: 'Dessert (100g serving)',
-  },
-  {
-    id: 'calories',
-    numeric: true,
-    disablePadding: false,
-    label: 'Calories',
-  },
-  {
-    id: 'fat',
-    numeric: true,
-    disablePadding: false,
-    label: 'Fat (g)',
-  },
-  {
-    id: 'carbs',
-    numeric: true,
-    disablePadding: false,
-    label: 'Carbs (g)',
-  },
-  {
-    id: 'protein',
-    numeric: true,
-    disablePadding: false,
-    label: 'Protein (g)',
-  },
-];
-
 interface EnhancedTableHeadProps {
   numSelected: number;
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
+  checkbox?: boolean;
   orderBy: string;
   rowCount: number;
   headCells: any[];
 }
 
 function EnhancedTableHead(props: EnhancedTableHeadProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
+  const { onSelectAllClick, order, orderBy, numSelected, checkbox, rowCount, headCells, onRequestSort } =
     props;
+
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
@@ -134,17 +78,21 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
+
+        { checkbox && checkbox === true && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              color="primary"
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{
+                'aria-label': 'select all desserts',
+              }}
+            />
+          </TableCell>
+        )}
+        
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -173,10 +121,13 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
+  module: string;
+  checkbox?: boolean | undefined;
+  handleClickOpen: () => void;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const { numSelected } = props;
+  const { numSelected, handleClickOpen, module, checkbox } = props;
 
   return (
     <Toolbar
@@ -190,36 +141,27 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       }}
     >
       {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
+        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div" >
           {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
+        </Typography> ) 
+      : ( <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div" >
+          {module.toUpperCase()}
         </Typography>
       )}
+
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Delete" onClick={handleClickOpen}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
+      ) : ( checkbox && (
+          <Tooltip title="Filter list">
+            <IconButton>
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        )
       )}
     </Toolbar>
   );
@@ -228,14 +170,15 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 interface EnhancedTableProps {
   rows: any [];
   headCells: any [];
+  checkbox?: boolean | undefined;
   selected: any [];
-  module?: string;
+  module: string;
   setSelected: (arg:any) => void;
-  deleteSelected?: (arg:any) => void;
+  deleteSelected: () => void;
 }
 
 export default function EnhancedTable(props: EnhancedTableProps ) {
-  const { rows, headCells, module, selected, setSelected, deleteSelected } = props;
+  const { rows, headCells, module, selected, setSelected, checkbox, deleteSelected } = props;
 
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('calories');
@@ -248,7 +191,7 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
 
   const handleClickOpen = () => { setOpenDialog(true); };
   const handleClose = () => { setOpenDialog(false); };
-  const gotoPage = (id: string) => { navigate(`/app/${module}/${id}`); };
+  const gotoPage = (id: string) => { navigate(`/${module}/${id}`); };
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -316,7 +259,8 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar module={module} handleClickOpen={handleClickOpen} numSelected={selected.length} />
+
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -325,7 +269,7 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
           >
 
             <EnhancedTableHead headCells={headCells} numSelected={selected.length} order={order} orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick} onRequestSort={handleRequestSort} rowCount={rows?.length}
+               checkbox={checkbox} onSelectAllClick={handleSelectAllClick} onRequestSort={handleRequestSort} rowCount={rows?.length}
             />
 
             <TableBody>
@@ -339,9 +283,11 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
 
                   return (
                     <TableRow hover  role="checkbox" aria-checked={isItemSelected} tabIndex={-1} key={row.id} selected={isItemSelected} >
-                      <TableCell padding="checkbox">
-                        <Checkbox onClick={(event) => handleClick(event, row.id)} color="primary" checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId, }} />
-                      </TableCell>
+                      { checkbox && checkbox === true && (
+                        <TableCell padding="checkbox">
+                          <Checkbox onClick={(event) => handleClick(event, row.id)} color="primary" checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId, }} />
+                        </TableCell>
+                      )}
                       { convertToCells(row, labelId) }
                     </TableRow>
                   );
@@ -368,10 +314,23 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
+      <FormControlLabel control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding" />
+
+      {/* <Button variant="outlined" onClick={handleClickOpen}>
+        Open alert dialog
+      </Button> */}
+      <Dialog open={openDialog} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" >
+        <DialogTitle id="alert-dialog-title"> {"Delete "} {module} </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this {module.slice(0, module.length - 1)}{selected.length > 1 && "s" } 
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>No</Button>
+          <Button onClick={() => { deleteSelected(); handleClose();} } autoFocus> Yes </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

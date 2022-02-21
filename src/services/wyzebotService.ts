@@ -14,6 +14,7 @@ export const wyzebotService = {
     getAll,
     update,
     delete: _delete,
+    deletemany
 }; 
 
 function create(params:any) {
@@ -39,4 +40,8 @@ function update(id: string , params: any) {
 
 function _delete(id: string) {
     return fetchWrapper.delete(`${baseUrl}/${id}`);
+}
+
+function deletemany(params: any) {
+    return fetchWrapper.post(`${baseUrl}/deletemany`, params);
 }

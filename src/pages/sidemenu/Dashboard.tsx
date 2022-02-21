@@ -46,7 +46,7 @@ const Dashboard: React.FC<any> = () => {
                     <DashboardToolbar module="field" />
                     <Box sx={{ pt: 3 }}>
                         <EnhancedTable selected={selected} setSelected={setSelected} rows={rows} 
-                        deleteSelected={deleteSelected} headCells={headCells}   />
+                        module="field" deleteSelected={deleteSelected} headCells={headCells}   />
                     </Box>
                 </Container>
             </Box>

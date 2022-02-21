@@ -1,11 +1,9 @@
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { useDrawerContext } from "../contexts/drawer-context";
-import { Hidden, IconButton, Toolbar, AppBar as MuiAppBar, MenuItem, Typography, Menu } from '@mui/material';
+import { Hidden, IconButton, Toolbar, AppBar as MuiAppBar, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { AccountCircle } from "@mui/icons-material";
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -30,10 +28,6 @@ const AppBar = styled(MuiAppBar, {
 const DashboardNavBar: React.FC<any> = ( { bannerName,...rest}:any )  => {
 
   const { isOpened, toggleIsOpened } = useDrawerContext();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const handleMenu = (event: any) => { setAnchorEl(event.currentTarget); };
-  const handleClose = () => { setAnchorEl(null); };
-  const logout = () => {};
 
   return (
     <AppBar position="fixed" open={isOpened} elevation={0} {...rest} >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
 import { wyzebotService } from '../../services/wyzebotService'; 
 import { useParams, useNavigate, useLocation } from 'react-router';
@@ -26,6 +26,7 @@ const WyzebotForm = (props: any) => {
   const nameRef = useRef<any>(null);
   const fileRef = useRef<any>(null);
   const [file, setFile] = useState<any>(null);
+  const [fileID, setFileID] = useState<any>(null);
   const [fileError, setFileError] = useState<any>(null);
   const [powerError, setPowerError] = useState<any>(null);
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -44,8 +45,9 @@ const WyzebotForm = (props: any) => {
   const handleCloseSnackbar = () => { setOpenSnackBar(false); };
 
   const delay = 5000;
-  const setAlertBody = ( state: string) => { 
+  const setAlertBody = ( state: AlertColor ) => { 
     const stateMessage = state === "success" ? "Success" : "Error";
+    setState(state);
     const message = state === "success" ? 
     (<>You have successfully — <strong>Created a {moduleName}!</strong></>) : 
     (<>{moduleName} creation was - <strong>Unsuccessful</strong>. Please check your Network Connection.</>);
@@ -81,9 +83,10 @@ const WyzebotForm = (props: any) => {
     
     handleToggle();
     setIsDisabled(true);
-    let data = { name: name, power: power, image: file.name };
+    let data = { name: name, power: power, image: file.name, file_id: fileID };
+
     wyzebotService.create(data)
-    .then((response:any) => { handleClose(); setAlertBody("success"); console.log(response);})
+    .then((response:any) => { handleClose(); setAlertBody("success"); })
     .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
 
   }
@@ -120,6 +123,7 @@ const WyzebotForm = (props: any) => {
     try{
       let response = await fileService.upload(formData);
       // setShowLoading(false);
+      setFileID(response.file_id);
       return response;
     } catch (error) { 
       //setShowLoading(false); 
@@ -142,7 +146,6 @@ const WyzebotForm = (props: any) => {
     }
     setFile(file); fileServiceUpload(file);
   };
-
 
   return (
     <>

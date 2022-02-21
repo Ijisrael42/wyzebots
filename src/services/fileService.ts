@@ -2,7 +2,6 @@
 // import { useHistory } from "react-router-dom";
 import { fetchWrapper } from "../helpers/fetchWrapper";
 import { config } from "../helpers/config";
-import { accountService } from './accountService'; 
 
 const baseUrl = `${config.apiUrl}/files`;
 
@@ -12,10 +11,11 @@ export const fileService = {
 }; 
 
 
-function upload(params) {
-    return fetchWrapper.file(`${baseUrl}/upload`, params);
+function upload(params: any) {
+    return fetchWrapper.file(`${baseUrl}/upload`, params)
+    .then( (response) => { return response; });
 }
 
-function uploadMultiple(params) {
+function uploadMultiple(params: any) {
     return fetchWrapper.file(`${baseUrl}/upload_multiple`, params);
 }

@@ -4,7 +4,7 @@ import WyzebotForm from '../../components/wyzebot/WyzebotForm';
 
 const Wyzebot = () => (
   <>
-    <Helmet> <title>Wyzebot | SMFC</title> </Helmet>
+    <Helmet> <title>Wyzebot | WYZETALK</title> </Helmet>
     <Box sx={{ backgroundColor: 'background.default', minHeight: '100%', py: 3 }} >
       <Container maxWidth="lg">
         <Box sx={{ pt: 3 }}>  <WyzebotForm  /> </Box>
