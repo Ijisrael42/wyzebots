@@ -3,8 +3,8 @@ import { Box, Container } from '@material-ui/core';
 import WyzebotToolbar from '../../components/wyzebot/WyzebotToolbar';
 import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
-import { useNavigate  } from "react-router-dom";
-import { Backdrop, CircularProgress, Avatar } from '@mui/material';
+import { useNavigate, useLocation  } from "react-router-dom";
+import { Backdrop, CircularProgress, Avatar, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { wyzebotService } from '../../services/wyzebotService'; 
 import { config } from "../../helpers/config";
 
@@ -16,32 +16,44 @@ const WyzebotList: React.FC<any> = () => {
     const [selected, setSelected] = React.useState([]);
     const [ wyzebots, setWyzebots ] = useState([]);
     const navigate = useNavigate();
+    const handleToggle = () => { setOpen(!open); };
+    
+    const location = useLocation();
+    const route = location.pathname.split("/")[1];
+    const moduleName = route[0].toUpperCase() + route.slice(1, route.length - 1);
+    const [state, setState] = useState<AlertColor | undefined>("success");
+    const [alert, setAlert] = useState<any>();
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const handleCloseSnackbar = () => { setOpenSnackBar(false); };
 
     const handleClose = () => { setOpen(false); };
+    const handleClick = () => { setOpenSnackBar(true); };
+
+    const delay = 5000;
+    const setAlertBody = ( state: AlertColor ) => { 
+        const stateMessage = state === "success" ? "Success" : "Error";
+
+        setState(state);
+        const message = state === "success" ? 
+        (<>You have successfully — <strong>Deleted a {moduleName}!</strong></>) : 
+        (<>You have Unsuccessfully — <strong>Deleted a {moduleName}</strong>. Please check your Network Connection.</>);
+
+        const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
+        setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+    }
+
     function createData( image: any, id: string, name: string, power: string, squad: string, ) {
         return { image, id, name, power, squad, };
     }
 
     const deleteSelected = () => {
-        console.log(selected);
-        setOpen(true);
+        handleToggle();
 
         wyzebotService.deletemany(selected)
-        .then( response => { setOpen(true); navigate(0); })
-        .catch( error => console.log(error) );
+        .then( response => { handleClose(); setAlertBody("success");  })
+        .catch( error => { handleClose(); setAlertBody("error");  } );
     }
-    
-    
-    const rows: any = [
-        // createData('Cupcake', 305, 3.7, 67, 4.3), createData('Donut', 452, 25.0, 51, 4.9),
-        // createData('Eclair', 262, 16.0, 24, 6.0), createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-        // createData('Gingerbread', 356, 16.0, 49, 3.9), createData('Honeycomb', 408, 3.2, 87, 6.5),
-        // createData('Ice cream sandwich', 237, 9.0, 37, 4.3), createData('Jelly Bean', 375, 0.0, 94, 0.0),
-        // createData('KitKat', 518, 26.0, 65, 7.0),  createData('Lollipop', 392, 0.2, 98, 0.0),
-        // createData('Marshmallow', 318, 0, 81, 2.0), createData('Nougat', 360, 19.0, 9, 37.0),
-        // createData('Oreo', 437, 18.0, 63, 4.0),
-    ];
-      
+          
     const headCells = [ 
         { id: 'image', numeric: false, disablePadding: false, label: 'Image', },
         { id: 'id', numeric: false, disablePadding: false, label: 'ID', },
@@ -51,16 +63,17 @@ const WyzebotList: React.FC<any> = () => {
     ];
   
     useEffect( () => { 
-
+        handleToggle();
         wyzebotService.getAll()
-        .then( (response:any) => { 
+        .then( (response:any) => {  
 
             const wyzebots = response.map( (el:any) => {
                 let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${config.apiUrl}/files/image/${el.image}`} />);
-                let squad = el.squad ? el.squad : "N/A";
+                let squad = el.squad_name ? el.squad_name : "N/A";
                 return createData( image, el.id, el.name, el.power.toString(), squad);
             });
-            setWyzebots(wyzebots);             
+            setWyzebots(wyzebots);     
+            handleClose();        
         })
         .catch( (error:any) => { console.log(error);});
 
@@ -73,14 +86,18 @@ const WyzebotList: React.FC<any> = () => {
                 <Container maxWidth={false}>
                     <WyzebotToolbar module="wyzebots" />
                     <Box sx={{ pt: 3 }}>
-                        <EnhancedTable selected={selected} setSelected={setSelected} rows={wyzebots} 
+                        <EnhancedTable selected={selected} setSelected={setSelected} rows={wyzebots} toolBarBtn={true}
                         deleteSelected={deleteSelected} headCells={headCells} module="wyzebots" checkbox={true} />
                     </Box>
                 </Container>
             </Box>
             <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={open} onClick={handleClose} >
                 <CircularProgress color="inherit" />
-            </Backdrop>    
+            </Backdrop> 
+
+            <Snackbar open={openSnackBar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} autoHideDuration={delay} onClose={handleCloseSnackbar}>
+                <Alert variant="filled" onClose={() => handleCloseSnackbar()} severity={state} sx={{ width: '100%' }}> {alert} </Alert>
+            </Snackbar>   
         </>
     );
 }

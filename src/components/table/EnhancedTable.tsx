@@ -122,12 +122,12 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
 interface EnhancedTableToolbarProps {
   numSelected: number;
   module: string;
-  checkbox?: boolean | undefined;
+  toolBarBtn?: boolean | undefined;
   handleClickOpen: () => void;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const { numSelected, handleClickOpen, module, checkbox } = props;
+  const { numSelected, handleClickOpen, module, toolBarBtn } = props;
 
   return (
     <Toolbar
@@ -149,13 +149,14 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         </Typography>
       )}
 
-      {numSelected > 0 ? (
+      {numSelected > 0 ? ( toolBarBtn && (
         <Tooltip title="Delete" onClick={handleClickOpen}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : ( checkbox && (
+        )
+      ) : ( toolBarBtn && (
           <Tooltip title="Filter list">
             <IconButton>
               <FilterListIcon />
@@ -171,6 +172,7 @@ interface EnhancedTableProps {
   rows: any [];
   headCells: any [];
   checkbox?: boolean | undefined;
+  toolBarBtn?: boolean | undefined;
   selected: any [];
   module: string;
   setSelected: (arg:any) => void;
@@ -178,7 +180,7 @@ interface EnhancedTableProps {
 }
 
 export default function EnhancedTable(props: EnhancedTableProps ) {
-  const { rows, headCells, module, selected, setSelected, checkbox, deleteSelected } = props;
+  const { rows, headCells, module, selected, setSelected, checkbox, deleteSelected, toolBarBtn } = props;
 
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState<keyof Data>('calories');
@@ -259,7 +261,7 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar module={module} handleClickOpen={handleClickOpen} numSelected={selected.length} />
+        <EnhancedTableToolbar toolBarBtn={toolBarBtn} module={module} handleClickOpen={handleClickOpen} numSelected={selected.length} />
 
         <TableContainer>
           <Table

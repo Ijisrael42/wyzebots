@@ -33,6 +33,7 @@ const WyzebotForm = (props: any) => {
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [alert, setAlert] = useState<any>();
   const [state, setState] = useState<AlertColor | undefined>("success");
+  const [name, setName] = React.useState("");
 
   const handleClose = () => { setOpen(false); };
   const handleToggle = () => { setOpen(!open); };
@@ -160,14 +161,15 @@ const WyzebotForm = (props: any) => {
         setWyzebot(response);  setOpen(false); 
         setFile({ name: response.image });
         setFileID(response.file_id);
-        nameRef.current.value = response.name;
-        
+        setName(response.name);
+
         let temp: ChipData[] = [];
         response.power.forEach((el:string, index: number) => temp.push({label: el, key: index}));
 
         setChipData([...temp]);
+        handleClose();
       })    
-      .catch( error => console.log(error) );
+      .catch( error => { handleClose();  console.log(error); } );
     }
   },[]);
 
@@ -181,9 +183,19 @@ const WyzebotForm = (props: any) => {
             
             <Grid container spacing={2}>
               <Grid item xs={12} md={9}>
-                <TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name" helperText={error ? error : ""}
-                 error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
-                  />          
+                { ( id === "create" && name === "" ) && 
+                  (<TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name"
+                    helperText={error ? error : ""}
+                    error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
+                  />) 
+                }
+                
+                { ( name && name !== "") && 
+                  (<TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name"
+                    helperText={error ? error : ""}  defaultValue={name}
+                    error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
+                  />)
+                }          
              </Grid> 
 
              <Grid item xs={12} md={3}>
@@ -214,7 +226,7 @@ const WyzebotForm = (props: any) => {
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', pt: 3 }} >            
                   { (chipData.length >= 3) ? 
                       (<Button component="span" disabled={true} color="primary" variant="contained" > Maxed Out </Button>) 
-                    : (<Button component="span" onClick={() => handleAdd()} color="primary" variant="contained" > Add </Button>)
+                    : (<Button component="span" disabled={isDisabled ? true: false} onClick={() => handleAdd()} color="primary" variant="contained" > Add </Button>)
                   }
                 </Box>
               </Grid>   
