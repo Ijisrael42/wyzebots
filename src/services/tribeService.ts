@@ -26,7 +26,6 @@ function getById(id: string) {
 }
 
 function getAll() {
-    // accountService.getJwt();
     return fetchWrapper.get(`${baseUrl}`);
 }
 

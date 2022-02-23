@@ -1,8 +1,7 @@
 import MainLayout from "./components/layout/mainlayout/MainLayout";
 import BackBtnLayout from "./components/layout/backbtnlayout/BackBtnLayout";
-import { CustomersPage, OrdersPage, InventoryPage, } from "./pages";
-import { WyzebotList, SquadList } from "./pages/sidemenu";
-import { Wyzebot, Squad } from "./pages/backbutton";
+import { WyzebotList, SquadList, TribeList } from "./pages/sidemenu";
+import { Wyzebot, Squad, Tribe } from "./pages/backbutton";
 import { Navigate  } from "react-router";
 
 const routes = [ 
@@ -13,7 +12,7 @@ const routes = [
             { path: '*', element: <Navigate to="wyzebots" /> },
             { path: 'wyzebots', element: <WyzebotList/> },
             { path: 'squads', element: <SquadList/> },
-            { path: 'orders', element: <OrdersPage/> },
+            { path: 'tribes', element: <TribeList/> },
         ] 
     },
     {   
@@ -21,8 +20,7 @@ const routes = [
         children: [ 
             { path: 'wyzebots/:id', element: <Wyzebot/> },
             { path: 'squads/:id', element: <Squad /> },
-            { path: 'customers', element: <CustomersPage/> },
-            { path: 'inventory', element: <InventoryPage/> }
+            { path: 'tribes/:id', element: <Tribe /> },
         ]
     }
 ];

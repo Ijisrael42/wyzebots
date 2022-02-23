@@ -1,26 +1,26 @@
 import { Helmet } from 'react-helmet';
 import { Box, Container } from '@material-ui/core';
-import SquadToolbar from '../../components/squad/SquadToolbar';
+import TribeToolbar from '../../components/tribe/TribeToolbar';
 import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
 import { useNavigate, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
+import { tribeService } from '../../services/tribeService'; 
 import { squadService } from '../../services/squadService'; 
-import { wyzebotService } from '../../services/wyzebotService'; 
 import { config } from "../../helpers/config";
 
 interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
 
-const SquadList: React.FC<any> = () => {
+const TribeList: React.FC<any> = () => {
 
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = React.useState([]);
-    const [ squads, setSquads ] = useState([]);
+    const [ tribes, setTribes ] = useState([]);
     const navigate = useNavigate();
     const handleToggle = () => { setOpen(!open); }; 
 
-    function createData( id: string, name: string, wyzebots: string, tribe: string ) {
-        return { id, name, wyzebots, tribe, };
+    function createData( id: string, name: string, squads: string) {
+        return { id, name, squads };
     }
 
     const location = useLocation();
@@ -50,7 +50,7 @@ const SquadList: React.FC<any> = () => {
     const deleteSelected = () => {
         handleToggle();
 
-        squadService.deletemany(selected)
+        tribeService.deletemany(selected)
         .then( response => { handleClose(); setAlertBody("success");  })
         .catch( error => { handleClose(); setAlertBody("error");  } );
     }    
@@ -58,30 +58,28 @@ const SquadList: React.FC<any> = () => {
     const headCells = [ 
         { id: 'id', numeric: false, disablePadding: false, label: 'ID', },
         { id: 'name', numeric: false, disablePadding: false, label: 'Name', },
-        { id: 'wyzebots', numeric: false, disablePadding: false, label: 'Wyzebots', },
-        { id: 'tribe', numeric: false, disablePadding: false, label: 'Tribe', },
+        { id: 'squads', numeric: false, disablePadding: false, label: 'Squads', },
     ];
   
     useEffect( () => { 
         handleToggle();
-        squadService.getAll()
+        tribeService.getAll()
         .then( async (response:any) => { 
-            const wyzebots = await wyzebotService.getAll();
-            const wyzebotNames: any[] = [];
+            const squads = await squadService.getAll();
+            const squadNames: any[] = [];
 
-            wyzebots.forEach( (wyzebot:any) => { wyzebotNames[wyzebot.id] = wyzebot.name; })
+            squads.forEach( (squad:any) => { squadNames[squad.id] = squad.name; })
 
-            const squads = response.map( (el:any) => {
-                let tribe = el.tribe_name ? el.tribe_name : "N/A";
+            const tribes = response.map( (el:any) => {
                 let names = [];
-                let squadWyzebots = el.wyzebots;
+                let tribeSquads = el.squads;
 
-                for( var i = 0; i < squadWyzebots.length; i++ ) names.push(wyzebotNames[squadWyzebots[i]]);
+                for( var i = 0; i < tribeSquads.length; i++ ) names.push(squadNames[tribeSquads[i]]);
                 let nameStr = names.length > 0 ? names.toString() : "N/A";
 
-                return createData( el.id, el.name, nameStr, tribe);
+                return createData( el.id, el.name, nameStr);
             });
-            setSquads(squads);    
+            setTribes(tribes);    
             handleClose();         
         })
         .catch( (error:any) => { console.log(error);});
@@ -90,13 +88,13 @@ const SquadList: React.FC<any> = () => {
 
     return (
         <>
-            <Helmet> <title>Squad Table | WYZETALK</title> </Helmet>
+            <Helmet> <title>Tribe Table | WYZETALK</title> </Helmet>
             <Box sx={{ backgroundColor: 'background.default', minHeight: '100%', py: 3 }} >
                 <Container maxWidth={false}>
-                    <SquadToolbar module="squads" />
+                    <TribeToolbar module="tribes" />
                     <Box sx={{ pt: 3 }}>
-                        <EnhancedTable selected={selected} setSelected={setSelected} rows={squads} toolBarBtn={true}
-                        deleteSelected={deleteSelected} headCells={headCells} module="squads" checkbox={true} />
+                        <EnhancedTable selected={selected} setSelected={setSelected} rows={tribes} toolBarBtn={true}
+                        deleteSelected={deleteSelected} headCells={headCells} module="tribes" checkbox={true} />
                     </Box>
                 </Container>
             </Box>
@@ -111,4 +109,4 @@ const SquadList: React.FC<any> = () => {
     );
 }
 
-export default SquadList;
+export default TribeList;

@@ -113,8 +113,8 @@ const WyzebotForm = (props: any) => {
   const getFile = (e:any) => {
     let file = e.target.files[0];
     const filetype = ['png', 'jpg', 'jpeg']; // 'doc', 'docx', 'pdf',
-    const fileExtension = file.name.split('.').pop();
-  
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+
     if( filetype.indexOf(fileExtension) === -1) return; 
     else return file;
   };
@@ -126,7 +126,6 @@ const WyzebotForm = (props: any) => {
 
     try{
       let response = await fileService.upload(formData);
-      console.log(response);
       setFileID(response.file_id);
       return response;
     } catch (error) {  return error;  }

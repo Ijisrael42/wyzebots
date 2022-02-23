@@ -1,5 +1,3 @@
-// import { BehaviorSubject } from 'rxjs';
-// import { useHistory } from "react-router-dom";
 import { fetchWrapper } from "../helpers/fetchWrapper";
 import { config } from "../helpers/config";
 

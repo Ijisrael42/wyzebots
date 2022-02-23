@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Button, Avatar, Container, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
+import { tribeService } from '../../services/tribeService'; 
 import { squadService } from '../../services/squadService'; 
 import { wyzebotService } from '../../services/wyzebotService'; 
 import { useParams, useNavigate, useLocation } from 'react-router';
@@ -9,9 +10,9 @@ import TagFacesIcon from '@mui/icons-material/TagFaces';
 import { config } from "../../helpers/config";
 import EnhancedTable from "../table/EnhancedTable";
 
-const steps = ['Squad Name', 'Select Wyzebots', 'Complete'];
+const steps = ['Tribe Name', 'Select Squads', 'Complete'];
 
-const SquadForm = (props: any) => {
+const TribeForm = (props: any) => {
 
   const [activeStep, setActiveStep] = React.useState(0);
   const nameRef = useRef<any>(null);
@@ -22,8 +23,8 @@ const SquadForm = (props: any) => {
 
   const { id }:any = useParams();
   const [open, setOpen] = useState(false);
-  const [wyzebots, setWyzebots] = useState<any>(null);
-  const [squad, setSquad] = useState<any>(null);
+  const [squads, setSquads] = useState<any>(null);
+  const [tribe, setTribe] = useState<any>(null);
 
   const location = useLocation();
   const route = location.pathname.split("/")[1];
@@ -45,8 +46,8 @@ const SquadForm = (props: any) => {
   const handleStep1 = () => {
 
     if( activeStep === 1 && selected ) {
-      if( selected.length < 1 ) { setSelectedError("You have not selected any Wyzebot"); return; }
-      else if( selected.length > 5 ) { setSelectedError("You have selected more than 5 Wyzebot"); return; }
+      if( selected.length < 1 ) { setSelectedError("You have not selected any Squad"); return; }
+      else if( selected.length > 3 ) { setSelectedError("You have selected more than 3 Squad"); return; }
     }
 
     setActiveStep(2); 
@@ -61,8 +62,8 @@ const SquadForm = (props: any) => {
 
   const handleCloseSnackbar = () => { setOpenSnackBar(false); };
   const handleClick = () => { setOpenSnackBar(true); };
-  function createData( image: any, id: string, name: string, power: string, squad: string, ) {
-    return { image, id, name, power, squad, };
+  function createData( id: string, name: string, wyzebots: string, tribe: string ) {
+    return { id, name, wyzebots, tribe, };
   }
 
   const delay = 5000;
@@ -79,25 +80,24 @@ const SquadForm = (props: any) => {
   }
 
   const headCells = [ 
-    { id: 'image', numeric: false, disablePadding: false, label: 'Image', },
     { id: 'id', numeric: false, disablePadding: false, label: 'ID', },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name', },
-    { id: 'power', numeric: false, disablePadding: false, label: 'Power', },
-    { id: 'squad', numeric: false, disablePadding: false, label: 'Squad', },
+    { id: 'wyzebots', numeric: false, disablePadding: false, label: 'Wyzebots', },
+    { id: 'tribe', numeric: false, disablePadding: false, label: 'Tribe', },
   ];
 
   const create = () => {
         
     handleToggle();
-    let data = { name: name, wyzebots: selected };
+    let data = { name: name, squads: selected };
 
     if( id === "create" ){
-      squadService.create(data)
+      tribeService.create(data)
       .then((response:any) => { handleClose(); setAlertBody("success"); })
       .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
     } 
     else {
-      squadService.update(id, data)
+      tribeService.update(id, data)
       .then( response => { handleClose(); setAlertBody("success"); })
       .catch( error => { handleClose(); setAlertBody("error"); console.log(error);} );
     }
@@ -107,24 +107,33 @@ const SquadForm = (props: any) => {
 
   useEffect( () => {
 
-    wyzebotService.getAll()
-    .then( (response:any) => { 
+    squadService.getAll()
+    .then( async (response:any) => { 
+        const wyzebots = await wyzebotService.getAll();
+        const wyzebotNames: any[] = [];
 
-        const wyzebots = response.map( (el:any) => {
-          let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${config.apiUrl}/files/image/${el.image}`} />);
-          let squad = el.squad_name ? el.squad_name : "N/A";
-          return createData( image, el.id, el.name, el.power.toString(), squad);
+        wyzebots.forEach( (wyzebot:any) => { wyzebotNames[wyzebot.id] = wyzebot.name; })
+
+        const squads = response.map( (el:any) => {
+          let tribe = el.tribe_name ? el.tribe_name : "N/A";
+          let names = [];
+          let squadWyzebots = el.wyzebots;
+
+          for( var i = 0; i < squadWyzebots.length; i++ ) names.push(wyzebotNames[squadWyzebots[i]]);
+
+          return createData( el.id, el.name, names.toString(), tribe);
         });
-        setWyzebots(wyzebots);             
-    }) .catch( (error:any) => { console.log(error);});
+        setSquads(squads);              
+    })
+    .catch( (error:any) => {  });
 
     if( id !== "create" ) {
 
       handleToggle();
 
-      squadService.getById(id)
+      tribeService.getById(id)
       .then( response => { 
-        setSelected(response.wyzebots); setSquad(response); setName(response.name);
+        setSelected(response.squads); setTribe(response); setName(response.name);
         
         handleClose();
       })    
@@ -155,7 +164,7 @@ const SquadForm = (props: any) => {
 
               { activeStep === 0 && (
                 <React.Fragment>
-                  <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1} - Enter Squad Name</Typography>
+                  <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1} - Enter Tribe Name</Typography>
 
                   <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                     { ( id === "create" && name === "" ) &&
@@ -181,15 +190,15 @@ const SquadForm = (props: any) => {
               
               { activeStep === 1 && (
                 <React.Fragment>
-                  <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1} - Select Minimum of 1 or Maximum of 5 Wyzebots </Typography>
+                  <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1} - Select Minimum of 1 or Maximum of 3 Squads </Typography>
 
                   <Box sx={{ backgroundColor: 'background.default', display: 'flex', flexDirection: 'row', pt: 2 }}>
                     <Container maxWidth={false}>
                       { selectedError !== "" && (<Alert severity="error"> {selectedError} </Alert> )}                   
                       
                       <Box sx={{ pt: 3 }}>
-                          <EnhancedTable selected={selected} setSelected={setSelected} rows={wyzebots}
-                          deleteSelected={deleteSelected} headCells={headCells} module="squads" checkbox={true} />
+                          <EnhancedTable selected={selected} setSelected={setSelected} rows={squads}
+                          deleteSelected={deleteSelected} headCells={headCells} module="tribes" checkbox={true} />
                       </Box>
                     </Container>
                   </Box>
@@ -229,4 +238,4 @@ const SquadForm = (props: any) => {
   );
 };
 
-export default SquadForm;
+export default TribeForm;
