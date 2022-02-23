@@ -7,9 +7,6 @@ import { useNavigate, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { squadService } from '../../services/squadService'; 
 import { wyzebotService } from '../../services/wyzebotService'; 
-import { config } from "../../helpers/config";
-
-interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
 
 const SquadList: React.FC<any> = () => {
 

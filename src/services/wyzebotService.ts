@@ -1,7 +1,5 @@
 import { fetchWrapper } from "../helpers/fetchWrapper";
-import { config } from "../helpers/config";
-
-const baseUrl = `${config.apiUrl}/wyzebots`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/wyzebots`;
 
 export const wyzebotService = {
     create,

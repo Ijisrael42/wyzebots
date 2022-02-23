@@ -4,12 +4,13 @@ import { WyzebotList, SquadList, TribeList } from "./pages/sidemenu";
 import { Wyzebot, Squad, Tribe } from "./pages/backbutton";
 import { Navigate  } from "react-router";
 
-const routes = [ 
+const routes = [
+    { path: '/', element: <Navigate to="wyzebots" /> }, 
     {   
         path: '/', element: <MainLayout />, 
         children: [ 
-            { path: '/', element: <Navigate to="wyzebots" /> },
             { path: '*', element: <Navigate to="wyzebots" /> },
+            { path: '/', element: <Navigate to="wyzebots" /> },
             { path: 'wyzebots', element: <WyzebotList/> },
             { path: 'squads', element: <SquadList/> },
             { path: 'tribes', element: <TribeList/> },

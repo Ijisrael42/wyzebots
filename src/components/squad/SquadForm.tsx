@@ -6,7 +6,6 @@ import { useParams, useNavigate, useLocation } from 'react-router';
 import { Stepper, Step, StepLabel, Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
-import { config } from "../../helpers/config";
 import EnhancedTable from "../table/EnhancedTable";
 
 const steps = ['Squad Name', 'Select Wyzebots', 'Complete'];
@@ -111,7 +110,7 @@ const SquadForm = (props: any) => {
     .then( (response:any) => { 
 
         const wyzebots = response.map( (el:any) => {
-          let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${config.apiUrl}/files/image/${el.image}`} />);
+          let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${process.env.REACT_APP_API_URL}/files/image/${el.image}`} />);
           let squad = el.squad_name ? el.squad_name : "N/A";
           return createData( image, el.id, el.name, el.power.toString(), squad);
         });

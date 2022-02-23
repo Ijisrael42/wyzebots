@@ -7,7 +7,6 @@ import { useParams, useNavigate, useLocation } from 'react-router';
 import { Stepper, Step, StepLabel, Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
-import { config } from "../../helpers/config";
 import EnhancedTable from "../table/EnhancedTable";
 
 const steps = ['Tribe Name', 'Select Squads', 'Complete'];

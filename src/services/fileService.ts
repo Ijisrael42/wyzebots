@@ -1,7 +1,5 @@
 import { fetchWrapper } from "../helpers/fetchWrapper";
-import { config } from "../helpers/config";
-
-const baseUrl = `${config.apiUrl}/files`;
+const baseUrl = `${process.env.REACT_APP_API_URL}/files`;
 
 export const fileService = {
     upload,

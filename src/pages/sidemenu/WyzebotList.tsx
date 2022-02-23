@@ -6,9 +6,6 @@ import React, { useState, useEffect  } from "react";
 import { useNavigate, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, Avatar, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { wyzebotService } from '../../services/wyzebotService'; 
-import { config } from "../../helpers/config";
-
-interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
 
 const WyzebotList: React.FC<any> = () => {
 
@@ -68,8 +65,9 @@ const WyzebotList: React.FC<any> = () => {
         .then( (response:any) => {  
 
             const wyzebots = response.map( (el:any) => {
-                let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${config.apiUrl}/files/image/${el.image}`} />);
+                let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${process.env.REACT_APP_API_URL}/files/image/${el.image}`} />);
                 let squad = el.squad_name ? el.squad_name : "N/A";
+
                 return createData( image, el.id, el.name, el.power.toString(), squad);
             });
             setWyzebots(wyzebots);     
