@@ -15,7 +15,7 @@ Models
 - React Hooks
 - CSS-in-JS styles
 - Responsive
-- Create-react-app under the hood
+- Create-react-app PWA under the hood
 - Jest and Enzyme Test
 
 ## Quick Start
