@@ -16,6 +16,7 @@ Models
 - CSS-in-JS styles
 - Responsive
 - Create-react-app under the hood
+- Jest and Enzyme Test
 
 ## Quick Start
 
