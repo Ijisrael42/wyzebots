@@ -34,8 +34,23 @@ npm install
 
 3. Run
 
+Create an .env
+
+Add Variable:
+REACT_APP_API_URL: e.g http://localhost:4000
+- This variable points to NodeJs ExpressJs server
+```
+
+3. Run
+
 ```shell
 npm start
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+5. Run tests
+
+```shell
+npm run test
+```

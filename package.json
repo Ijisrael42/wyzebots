@@ -43,6 +43,7 @@
     "react-scripts": "5.0.0",
     "react-toastify": "^8.1.0",
     "rxjs": "^7.5.2",
+    "supertest": "^6.2.2",
     "typescript": "^4.5.5",
     "uuid": "^8.3.0",
     "web-vitals": "^0.2.4",
@@ -64,6 +65,7 @@
     "start": "react-scripts start",
     "build": "npm run generate-build-meta && react-scripts build && firebase deploy",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --runInBand --watchAll=false",
     "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
     "compile:scss": "node-sass --importer node_modules/node-sass-package-importer/dist/cli.js src/assets/scss/argon-dashboard-react.scss src/assets/css/argon-dashboard-react.css",
@@ -73,7 +75,51 @@
     "predeploy": "npm run build",
     "deploy": "firebase build",
     "prebuild": "npm run generate-build-meta",
-    "generate-build-meta": "node ./node_modules/react-clear-cache/bin/cli.js"
+    "generate-build-meta": "node ./node_modules/react-clear-cache/bin/cli.js",
+    "isready": "npm run format && npm run lint && npm run test:coverage && npm run build"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/serviceWorker.ts",
+      "!src/reportWebVitals.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "./src/*/*.types.{ts,tsx}",
+      "./src/index.tsx",
+      "./src/serviceWorker.ts"
+    ],
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text-summary",
+      "clover"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 95,
+        "branches": 95,
+        "lines": 95,
+        "functions": 95
+      }
+    },
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+      "src/(.*)$": "<rootDir>/src/$1"
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -94,6 +140,16 @@
     ]
   },
   "devDependencies": {
-    "@types/react-helmet": "^6.1.5"
+    "@types/enzyme": "3.10.11",
+    "@types/enzyme-adapter-react-16": "1.0.6",
+    "@types/react-helmet": "^6.1.5",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.6",
+    "enzyme-to-json": "3.6.2",
+    "jest": "^27.5.1",
+    "jest-fetch-mock": "3.0.3",
+    "jest-watch-typeahead": "^0.6.5",
+    "react-test-renderer": "^17.0.2",
+    "ts-jest": "27.1.3"
   }
 }
