@@ -40,6 +40,8 @@ Create an .env
 Add Variable:
 REACT_APP_API_URL: e.g http://localhost:4000
 - This variable points to NodeJs ExpressJs server
+
+Check the .env.example format
 ```
 
 3. Run
