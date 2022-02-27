@@ -110,7 +110,7 @@ const SquadForm = (props: any) => {
     .then( (response:any) => { 
 
         const wyzebots = response.map( (el:any) => {
-          let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={`${process.env.REACT_APP_API_URL}/files/image/${el.image}`} />);
+          let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={el.image_url} />);
           let squad = el.squad_name ? el.squad_name : "N/A";
           return createData( image, el.id, el.name, el.power.toString(), squad);
         });

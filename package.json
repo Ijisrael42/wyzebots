@@ -143,6 +143,7 @@
     "@types/enzyme": "3.10.11",
     "@types/enzyme-adapter-react-16": "1.0.6",
     "@types/react-helmet": "^6.1.5",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.6",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.6",
     "enzyme-to-json": "3.6.2",
