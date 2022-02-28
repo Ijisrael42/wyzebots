@@ -96,7 +96,12 @@ const WyzebotForm = (props: any) => {
     if( id === "create" ){
       wyzebotService.create(data)
       .then((response:any) => { handleClose(); setAlertBody("success"); })
-      .catch((error:any) => { handleClose(); setAlertBody("error"); console.log(error);})
+      .catch((error:any) => { 
+        if( error === "Name is already taken" ) setError(error);
+        else { setAlertBody("error"); console.log(error); }
+
+        handleClose(); setIsDisabled(false);
+      })
     } 
     else {
       wyzebotService.update(id, data)
