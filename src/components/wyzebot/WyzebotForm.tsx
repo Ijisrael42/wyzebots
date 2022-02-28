@@ -70,6 +70,13 @@ const WyzebotForm = (props: any) => {
     } else setPowerError("Please type power here");
   };
 
+  const errorFn = (error: any) => {
+    if( error === "Name is already taken" ) setError(error);
+    else { setAlertBody("error"); console.log(error); }
+
+    handleClose(); setIsDisabled(false);
+  }
+
   const create = () => {
     
     var name = "", imageUrl = "", power: any[] = [], isValid = true;
@@ -96,17 +103,12 @@ const WyzebotForm = (props: any) => {
     if( id === "create" ){
       wyzebotService.create(data)
       .then((response:any) => { handleClose(); setAlertBody("success"); })
-      .catch((error:any) => { 
-        if( error === "Name is already taken" ) setError(error);
-        else { setAlertBody("error"); console.log(error); }
-
-        handleClose(); setIsDisabled(false);
-      })
+      .catch((error:any) => errorFn(error) );
     } 
     else {
       wyzebotService.update(id, data)
       .then( response => { handleClose(); setAlertBody("success"); })
-      .catch( error => { handleClose(); setAlertBody("error"); console.log(error);} );
+      .catch((error:any) => errorFn(error) );
     }
 
   }
