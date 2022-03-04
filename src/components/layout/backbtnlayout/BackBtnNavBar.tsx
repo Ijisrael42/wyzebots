@@ -1,7 +1,7 @@
 import { Hidden, IconButton, Toolbar, AppBar as MuiAppBar, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { ArrowBack as ArrowBackIcon } from '@material-ui/icons';
 
 const drawerWidth = 240;
@@ -26,7 +26,7 @@ const AppBar = styled(MuiAppBar, {
 
 const BackBtnNavBar: React.FC<any> = ( {bannerName,...rest}:any )  => {
 
-  let navigate = useNavigate();
+  const history = useHistory();
   
   return (
     <AppBar position="fixed" elevation={0} {...rest} >
@@ -36,7 +36,7 @@ const BackBtnNavBar: React.FC<any> = ( {bannerName,...rest}:any )  => {
             <IconButton
               color="inherit"
               aria-label="open drawer"
-              onClick={() => navigate(-1)}
+              onClick={() => history.goBack(-1)}
               edge="start"
               sx={{marginRight: '36px'}}
             >
@@ -55,7 +55,7 @@ const BackBtnNavBar: React.FC<any> = ( {bannerName,...rest}:any )  => {
             <IconButton
               color="inherit"
               aria-label="open drawer"
-              onClick={() => navigate(-1)}
+              onClick={() => history.goBack(-1)}
               edge="start"
             >
               <ArrowBackIcon />

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
 import { wyzebotService } from '../../services/wyzebotService'; 
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useHistory, useLocation } from 'react-router';
 import { Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
@@ -12,7 +12,8 @@ const ListItem = styled('li')((props: any) => ({ margin: props.theme.spacing(0.5
 const Input = styled('input')({ display: 'none', });
 
 const WyzebotForm = (props: any) => {
-  const navigate = useNavigate();
+  const history = useHistory();
+
   const { id }:any = useParams();
   const [error, setError] = useState("");
   const [imageUrlError, setImageUrlError] = useState("");
@@ -57,15 +58,15 @@ const WyzebotForm = (props: any) => {
     const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
     setAlert(alert); handleClose(); handleClick(); 
     setTimeout(() => { 
-      if( state === "success" ) navigate(`/${route}`); 
+      if( state === "success" ) history.push(`/${route}`); 
     }, delay);
   }
 
-  const handleAdd = () => {
+  const handleAdd = () => { 
 
-    if( powerRef.current!.value !== '' ) {
-      let power: ChipData = { key: chipData.length, label: powerRef.current!.value };
-      powerRef.current!.value = "";
+    if( powerRef.current.value !== '' ) {
+      let power: ChipData = { key: chipData.length, label: powerRef.current.value };
+      powerRef.current.value = "";
       setChipData([...chipData, power ]);
     } else setPowerError("Please type power here");
   };
@@ -146,14 +147,14 @@ const WyzebotForm = (props: any) => {
               <Grid item xs={12} md={6}>
                 { ( id === "create" && name === "" ) && 
                   (<TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name"
-                    helperText={error ? error : ""} placeholder="Enter Name"
+                    inputProps={{ 'data-testid':"name" }} helperText={error ? error : ""} placeholder="Enter Name"
                     error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
                   />) 
                 }
                 
                 { ( name && name !== "") && 
                   (<TextField onClick={() => setError("")} fullWidth label="Name" margin="normal" name="name"
-                    helperText={error ? error : ""}  defaultValue={name} placeholder="Enter Name"
+                  inputProps={{ 'data-testid':"name" }} helperText={error ? error : ""}  defaultValue={name} placeholder="Enter Name"
                     error={error ? true : false} type="text" variant="outlined" inputRef={value => (nameRef.current = value) } 
                   />)
                 }          
@@ -161,14 +162,14 @@ const WyzebotForm = (props: any) => {
              
               <Grid item xs={12} md={6}>
                 { ( id === "create" && imageUrl === "" ) && 
-                  (<TextField onClick={() => setImageUrlError("")} fullWidth label="Image Url" margin="normal"
+                  (<TextField onClick={() => setImageUrlError("")} fullWidth label="Image Url" margin="normal" inputProps={{ 'data-testid':"img-url" }}
                     helperText={imageUrlError ? imageUrlError : ""} placeholder="Enter image url from https://robohash.org/"
                     error={imageUrlError ? true : false} type="text" variant="outlined" inputRef={value => (imageUrlRef.current = value) } 
                   />) 
                 }
                 
                 { ( imageUrl && imageUrl !== "") && 
-                  (<TextField onClick={() => setImageUrlError("")} fullWidth label="Image Url" margin="normal"
+                  (<TextField onClick={() => setImageUrlError("")} fullWidth label="Image Url" margin="normal"  inputProps={{ 'data-testid':"img-url" }}
                     helperText={imageUrlError ? imageUrlError : ""}  defaultValue={imageUrl} placeholder="Enter image url from https://robohash.org/"
                     error={imageUrlError ? true : false} type="text" variant="outlined" inputRef={value => (imageUrlRef.current = value) } 
                   />)
@@ -179,14 +180,22 @@ const WyzebotForm = (props: any) => {
             
             <Grid container spacing={2}>
               <Grid item xs={12} >
-                  <TextField onClick={() => setPowerError("")}fullWidth label="Power" margin="normal" name="value" type="text" helperText={powerError ? powerError : ""}
-                  error={powerError ? true : false} variant="outlined" inputRef={value => (powerRef.current = value) } />          
-                  <Box sx={{ display: 'flex', justifyContent: 'center' }} >            
-                      { (chipData.length >= 3) ? 
-                          (<Button component="span" disabled={true} color="primary" variant="contained" > Maxed Out </Button>) 
-                        : (<Button component="span" disabled={isDisabled ? true: false} onClick={() => handleAdd()} color="primary" variant="contained" > Add </Button>)
-                      }
-                  </Box>
+                <TextField inputProps={{ 'data-testid':"power" }} onClick={() => setPowerError("")} fullWidth label="Power" margin="normal" 
+                name="value" type="text" helperText={powerError ? powerError : ""}
+                error={powerError ? true : false} variant="outlined" inputRef={value => (powerRef.current = value) } />          
+                <Box sx={{ display: 'flex', justifyContent: 'center' }} >            
+                  { (chipData.length >= 3) && 
+                    (<Button data-testid="maxed-out" component="span" disabled={true} color="primary" variant="contained" > 
+                          Maxed Out 
+                    </Button>) 
+                  }
+
+                  { (chipData.length < 3) && 
+                    (<Button data-testid="add-power" component="span" disabled={isDisabled ? true: false} onClick={() => handleAdd()} color="primary" variant="contained" >
+                        Add 
+                    </Button>)
+                  }
+                </Box>
               </Grid>
                 
               

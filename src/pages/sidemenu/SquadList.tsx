@@ -3,7 +3,7 @@ import { Box, Container } from '@material-ui/core';
 import SquadToolbar from '../../components/squad/SquadToolbar';
 import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
-import { useNavigate, useLocation  } from "react-router-dom";
+import { useHistory, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { squadService } from '../../services/squadService'; 
 import { wyzebotService } from '../../services/wyzebotService'; 
@@ -13,7 +13,7 @@ const SquadList: React.FC<any> = () => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = React.useState([]);
     const [ squads, setSquads ] = useState([]);
-    const navigate = useNavigate();
+    const history = useHistory();
     const handleToggle = () => { setOpen(!open); }; 
 
     function createData( id: string, name: string, wyzebots: string, tribe: string ) {
@@ -41,7 +41,7 @@ const SquadList: React.FC<any> = () => {
         (<>You have Unsuccessfully — <strong>Deleted a {moduleName}</strong>. Please check your Network Connection.</>);
 
         const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
-        setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+        setAlert(alert); handleClose(); handleClick(); setTimeout(() => history.push(0), delay);
     }
 
     const deleteSelected = () => {
@@ -65,7 +65,7 @@ const SquadList: React.FC<any> = () => {
         .then( async (response:any) => { 
             const wyzebots = await wyzebotService.getAll();
             const wyzebotNames: any[] = [];
-
+            console.log(response);
             wyzebots.forEach( (wyzebot:any) => { wyzebotNames[wyzebot.id] = wyzebot.name; })
 
             const squads = response.map( (el:any) => {

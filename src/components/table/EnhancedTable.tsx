@@ -6,7 +6,7 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagin
     import Tooltip from '@mui/material/Tooltip';
     import { Delete as DeleteIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 //   import { visuallyHidden } from '@mui/utils';
-  import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
   
 interface Data { calories: number; carbs: number; fat: number; name: string; protein: number; }
 
@@ -188,12 +188,12 @@ export default function EnhancedTable(props: EnhancedTableProps ) {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-  const navigate = useNavigate();
+  const history = useHistory();
   const [openDialog, setOpenDialog] = React.useState(false);
 
   const handleClickOpen = () => { setOpenDialog(true); };
   const handleClose = () => { setOpenDialog(false); };
-  const gotoPage = (id: string) => { navigate(`/${module}/${id}`); };
+  const gotoPage = (id: string) => { history.push(`/${module}/${id}`); };
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,

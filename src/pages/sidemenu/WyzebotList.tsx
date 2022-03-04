@@ -3,7 +3,7 @@ import { Box, Container } from '@material-ui/core';
 import WyzebotToolbar from '../../components/wyzebot/WyzebotToolbar';
 import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
-import { useNavigate, useLocation  } from "react-router-dom";
+import { useHistory, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, Avatar, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { wyzebotService } from '../../services/wyzebotService'; 
 
@@ -12,7 +12,7 @@ const WyzebotList: React.FC<any> = () => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = React.useState([]);
     const [ wyzebots, setWyzebots ] = useState([]);
-    const navigate = useNavigate();
+    const history = useHistory();
     const handleToggle = () => { setOpen(!open); };
     
     const location = useLocation();
@@ -36,7 +36,7 @@ const WyzebotList: React.FC<any> = () => {
         (<>You have Unsuccessfully — <strong>Deleted a {moduleName}</strong>. Please check your Network Connection.</>);
 
         const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
-        setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+        setAlert(alert); handleClose(); handleClick(); setTimeout(() => history.push(0), delay);
     }
 
     function createData( image: any, id: string, name: string, power: string, squad: string, ) {
@@ -63,7 +63,7 @@ const WyzebotList: React.FC<any> = () => {
         handleToggle();
         wyzebotService.getAll()
         .then( (response:any) => {  
-
+            
             const wyzebots = response.map( (el:any) => {
                 let image = (<Avatar sx={{ ml: 2 }} alt={el.name} src={el.image_url} />);
                 let squad = el.squad_name ? el.squad_name : "N/A";

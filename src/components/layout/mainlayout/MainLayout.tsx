@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DrawerContextProvider } from "../contexts/drawer-context";
 import { styled } from '@material-ui/core/styles';
 import DashboardNavBar from "./DashboardNavBar";
@@ -38,7 +38,7 @@ const DashboardLayoutRoot = styled('div')(
     overflow: 'auto'
   });
   
-const MainLayout: React.FC<any> = () => {
+const MainLayout: React.FC<any> = ({Component}) => {
 
   const location = useLocation();
   const str = location.pathname.split("/")[1];
@@ -52,7 +52,7 @@ const MainLayout: React.FC<any> = () => {
                 <DashboardLayoutWrapper>
                     <DashboardLayoutContainer>
                         <DashboardLayoutContent>
-                            <Outlet />
+                          <Component />
                         </DashboardLayoutContent>
                     </DashboardLayoutContainer>
                 </DashboardLayoutWrapper>

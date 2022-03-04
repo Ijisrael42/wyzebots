@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Box, Button, Avatar, Container, Card, CardContent, CardHeader, Divider, TextField } from '@material-ui/core';
 import { squadService } from '../../services/squadService'; 
 import { wyzebotService } from '../../services/wyzebotService'; 
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useHistory, useLocation } from 'react-router';
 import { Stepper, Step, StepLabel, Backdrop, CircularProgress, Grid, Paper, Chip, Alert, Stack, Typography, Snackbar, AlertTitle, AlertColor } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import TagFacesIcon from '@mui/icons-material/TagFaces';
@@ -53,7 +53,7 @@ const SquadForm = (props: any) => {
 
   const handleBack = () => { setActiveStep((prevActiveStep) => prevActiveStep - 1); };
 
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const handleClose = () => { setOpen(false); };
   const handleToggle = () => { setOpen(!open); };
@@ -74,7 +74,7 @@ const SquadForm = (props: any) => {
     (<>You have Unsuccessfully — <strong>{action} a {moduleName}</strong>. Please check your Network Connection.</>);
 
     const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
-    setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(`/${route}`), delay);
+    setAlert(alert); handleClose(); handleClick(); setTimeout(() => history.push(`/${route}`), delay);
   }
 
   const headCells = [ 

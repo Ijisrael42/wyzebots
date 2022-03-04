@@ -3,7 +3,7 @@ import { Box, Container } from '@material-ui/core';
 import TribeToolbar from '../../components/tribe/TribeToolbar';
 import EnhancedTable from '../../components/table/EnhancedTable';
 import React, { useState, useEffect  } from "react";
-import { useNavigate, useLocation  } from "react-router-dom";
+import { useHistory, useLocation  } from "react-router-dom";
 import { Backdrop, CircularProgress, AlertColor, AlertTitle, Alert, Snackbar } from '@mui/material';
 import { tribeService } from '../../services/tribeService'; 
 import { squadService } from '../../services/squadService'; 
@@ -13,7 +13,7 @@ const TribeList: React.FC<any> = () => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = React.useState([]);
     const [ tribes, setTribes ] = useState([]);
-    const navigate = useNavigate();
+    const history = useHistory();
     const handleToggle = () => { setOpen(!open); }; 
 
     function createData( id: string, name: string, squads: string) {
@@ -41,7 +41,7 @@ const TribeList: React.FC<any> = () => {
         (<>You have Unsuccessfully — <strong>Deleted a {moduleName}</strong>. Please check your Network Connection.</>);
 
         const alert = (<> <AlertTitle>{stateMessage}</AlertTitle> {message} </>);
-        setAlert(alert); handleClose(); handleClick(); setTimeout(() => navigate(0), delay);
+        setAlert(alert); handleClose(); handleClick(); setTimeout(() => history.push(0), delay);
     }
 
     const deleteSelected = () => {
@@ -64,7 +64,7 @@ const TribeList: React.FC<any> = () => {
         .then( async (response:any) => { 
             const squads = await squadService.getAll();
             const squadNames: any[] = [];
-
+            console.log(response)
             squads.forEach( (squad:any) => { squadNames[squad.id] = squad.name; })
 
             const tribes = response.map( (el:any) => {

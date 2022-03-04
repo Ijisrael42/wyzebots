@@ -19,7 +19,7 @@ function getByParams(params:any) {
     return fetchWrapper.post(`${baseUrl}/params`, params);
 }
 
-function getById(id: string) {
+function getById(id:any) {
     return fetchWrapper.get(`${baseUrl}/${id}`);
 }
 
@@ -28,14 +28,14 @@ function getAll() {
     return fetchWrapper.get(`${baseUrl}`);
 }
 
-function update(id: string , params: any) {
+function update(id:any , params:any) {
     return fetchWrapper.put(`${baseUrl}/${id}`, params);
 }
 
-function _delete(id: string) {
+function _delete(id:any) {
     return fetchWrapper.delete(`${baseUrl}/${id}`);
 }
 
-function deletemany(params: any) {
+function deletemany(params:any) {
     return fetchWrapper.post(`${baseUrl}/deletemany`, params);
 }

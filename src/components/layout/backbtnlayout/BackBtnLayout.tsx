@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DrawerContextProvider } from "../contexts/drawer-context";
 import { styled } from '@material-ui/core/styles';
 import BackBtnNavBar from "./BackBtnNavBar";
@@ -37,7 +37,7 @@ const DashboardLayoutRoot = styled('div')(
     overflow: 'auto'
   });
   
-const BackBtnLayout: React.FC<any> = () => {
+const BackBtnLayout: React.FC<any> = ({Component}) => {
 
   const location = useLocation();
   const str = location.pathname.split("/")[1];
@@ -51,7 +51,7 @@ const BackBtnLayout: React.FC<any> = () => {
                 <DashboardLayoutWrapper>
                     <DashboardLayoutContainer>
                         <DashboardLayoutContent>
-                            <Outlet />
+                          <Component />
                         </DashboardLayoutContent>
                     </DashboardLayoutContainer>
                 </DashboardLayoutWrapper>
