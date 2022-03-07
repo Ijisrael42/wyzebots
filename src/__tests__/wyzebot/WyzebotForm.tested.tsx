@@ -1,17 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Wyzebot from '../pages/backbutton/Wyzebot';
+import Wyzebot from '../../pages/backbutton/Wyzebot';
 import { MemoryRouter, Route } from 'react-router-dom';
 import '@testing-library/jest-dom'
-import { act } from "react-dom/test-utils";
-import userEvent from '@testing-library/user-event'
 
-test('renders learn react link', async () => {
-
-  jest.mock('react-router', () => {
-    const originalModule = jest.requireActual('react-router');
-  
-    return { __esModule: true, ...originalModule, useParams: jest.fn(() => { return { id: 'create' }; }), };
-  });
+test('Creating a Wyzebot', async () => {
 
   const {container} = render( <MemoryRouter initialEntries={['/wyzebots/create']}> 
     <Route path='/wyzebots/:id'><Wyzebot /></Route>       
@@ -67,7 +59,7 @@ test('renders learn react link', async () => {
   // Add Power in not in the document anymore
   expect(addPowerBtn).not.toBeInTheDocument();
   
-  // Maxxed Out is displaying now
+  // Maxed Out is displaying now
   expect(screen.getByTestId('maxed-out')).toBeInTheDocument();
 });
 

@@ -64,7 +64,7 @@ const TribeList: React.FC<any> = () => {
         .then( async (response:any) => { 
             const squads = await squadService.getAll();
             const squadNames: any[] = [];
-            console.log(response)
+
             squads.forEach( (squad:any) => { squadNames[squad.id] = squad.name; })
 
             const tribes = response.map( (el:any) => {

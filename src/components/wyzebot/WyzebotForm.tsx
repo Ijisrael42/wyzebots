@@ -217,7 +217,7 @@ const WyzebotForm = (props: any) => {
           </CardContent>
           <Divider />
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }} >            
-            <Button onClick={() => create()} disabled={isDisabled ? true: false} color="primary" variant="contained" >
+            <Button data-testid="submit-btn" onClick={() => create()} disabled={isDisabled ? true: false} color="primary" variant="contained" >
                { id === "create" ? "Create" : "Update" }
             </Button>
           </Box>

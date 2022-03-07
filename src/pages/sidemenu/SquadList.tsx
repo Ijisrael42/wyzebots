@@ -65,7 +65,7 @@ const SquadList: React.FC<any> = () => {
         .then( async (response:any) => { 
             const wyzebots = await wyzebotService.getAll();
             const wyzebotNames: any[] = [];
-            console.log(response);
+
             wyzebots.forEach( (wyzebot:any) => { wyzebotNames[wyzebot.id] = wyzebot.name; })
 
             const squads = response.map( (el:any) => {
