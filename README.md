@@ -52,7 +52,7 @@ npm start
 
 4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-5. Run the [https://github.com/Ijisrael42/wyzebot_server](wyzebot_server) Node.js server to fetch data from the MongoDB server into the App.
+5. Run the (https://github.com/Ijisrael42/wyzebot_server)[wyzebot_server] Node.js server to fetch data from the MongoDB server into the App.
 
 6. Run tests
 
